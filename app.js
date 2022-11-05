@@ -4,6 +4,7 @@ const countries = document.querySelector(".countries");
 const titles = document.querySelector(".titles");
 const countriesSelect = document.querySelector(".countriesSelect");
 const regionName = document.querySelector(".regionName");
+const flag = document.querySelector(".flag");
 
 const ctx = document.getElementById("myChart").getContext("2d");
 
@@ -30,10 +31,6 @@ const fetchData = async function (url, kind, countryOrCity) {
           headers: {
             "Content-Type": "application/json",
           },
-          //     body: JSON.stringify({
-          //       city: countryOrCity,
-          //     }),
-          //   });
           body: JSON.stringify({
             limit: 20,
             order: "asc",
@@ -77,24 +74,23 @@ const calcPopulationOfRegionAndCountries = async function () {
   let populationCount = 0;
   populationRegionObj = {};
   populationCountriesObj = {};
+  dataOfCountries = [];
   for (let region of statData.regions) {
-    dataOfCountries = [];
     for (let country of statData.allData[region]) {
       const name = country.name.common.toLowerCase();
       const population = country.population;
+      const flag = country.flags;
+      const area = country.area;
+      const borders = country.borders;
       populationCount += country.population;
-      dataOfCountries.push({ name, population });
+      dataOfCountries.push({ name, population, flag, area, borders });
       populationCountriesObj[name] = population;
-
-      // statData.populationOfCountries[region] = dataOfCountries;
-      // statData.populationOfCountries[region].population = populationCount;
       populationRegionObj[region] = populationCount;
     }
     statData.populationOfCountries[region] = populationCountriesObj;
     populationCountriesObj = {};
   }
-  // draw(populationRegionObj);
-
+  console.log(dataOfCountries);
   data.datasets[0].data = populationRegionObj;
   myChart.update();
 };
@@ -116,6 +112,7 @@ const startup = async function () {
   statData.allData = await promisAllData();
   // const searchCountry = await getPopulationOfCitiesInSpisificCountry("israel");
   calcPopulationOfRegionAndCountries();
+  console.log(statData.allData);
 };
 
 const fillCountriesIntoSelectBox = function (region) {
@@ -186,8 +183,16 @@ const config = {
   data,
   options: {
     scales: {
+      x: {
+        ticks: {
+          color: "white",
+        },
+      },
       y: {
         beginAtZero: true,
+        ticks: {
+          color: "white",
+        },
       },
     },
   },
