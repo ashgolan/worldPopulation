@@ -10,25 +10,37 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.js"></script>
   </head>
   <body>
+    <header class="logo">
+      WORLD POPULATION<span class="signature">By Alaa Shaalan</span>
+    </header>
     <div class="big-container">
       <div class="headAndChart">
         <div class="titles">
-          <img src="/img/africaPhoto.png" id="africa" alt="" />
-          <img src="/img/americasPhoto.png" id="americas" alt="" />
-          <img src="/img/asiaPhoto.png" id="asia" alt="" />
-          <img src="/img/europePhoto.png" id="europe" alt="" />
-          <img src="/img/oceaniaPhoto.png" id="oceania" alt="" />
+          <img class="circle" src="/img/africaPhoto.png" id="africa" alt="" />
+          <img
+            class="circle"
+            src="/img/americasPhoto.png"
+            id="americas"
+            alt=""
+          />
+          <img class="circle" src="/img/asiaPhoto.png" id="asia" alt="" />
+          <img class="circle" src="/img/europePhoto.png" id="europe" alt="" />
+          <img class="circle" src="/img/oceaniaPhoto.png" id="oceania" alt="" />
         </div>
         <div class="chartContainer">
-          <div><canvas id="myChart" width="1000" height="450"></canvas></div>
+          <div><canvas id="myChart" width="650" height="300"></canvas></div>
         </div>
       </div>
-
       <div class="countries">
         <label class="regionName" for=""></label>
         <select name="" class="countriesSelect"></select>
         <div class="countryDetails">
-          <div class="flag"></div>
+          <img class="details details-flag" />
+          <div class="details details-name"></div>
+          <div class="details details-capital"></div>
+          <div class="details details-area"></div>
+          <div class="details details-population"></div>
+          <div class="details details-borders"></div>
         </div>
       </div>
     </div>

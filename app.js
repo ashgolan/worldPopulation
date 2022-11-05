@@ -4,13 +4,20 @@ const countries = document.querySelector(".countries");
 const titles = document.querySelector(".titles");
 const countriesSelect = document.querySelector(".countriesSelect");
 const regionName = document.querySelector(".regionName");
-const flag = document.querySelector(".flag");
+const countryDetails = document.querySelector(".countryDetails");
+const detailsFlag = document.querySelector(".details-flag");
+const detailsName = document.querySelector(".details-name");
+const detailsCapital = document.querySelector(".details-capital");
+const detailsArea = document.querySelector(".details-area");
+const detailsPopulation = document.querySelector(".details-population");
+const detailsBorders = document.querySelector(".details-borders");
 
 const ctx = document.getElementById("myChart").getContext("2d");
 
 statData = {
   regions: ["africa", "americas", "asia", "europe", "oceania"],
   allData: null,
+  dataOfCountries: [],
   populationOfCountries: {},
   populationOfCites: {},
   AllApis: {
@@ -70,27 +77,33 @@ const promisAllData = async function () {
   return { africa, americas, asia, europe, oceania };
 };
 
-const calcPopulationOfRegionAndCountries = async function () {
+const detailsRegionAndCountries = async function () {
   let populationCount = 0;
   populationRegionObj = {};
   populationCountriesObj = {};
-  dataOfCountries = [];
   for (let region of statData.regions) {
     for (let country of statData.allData[region]) {
       const name = country.name.common.toLowerCase();
+      const capital = country.capital;
       const population = country.population;
       const flag = country.flags;
       const area = country.area;
       const borders = country.borders;
       populationCount += country.population;
-      dataOfCountries.push({ name, population, flag, area, borders });
+      statData.dataOfCountries.push({
+        name,
+        capital,
+        population,
+        flag,
+        area,
+        borders,
+      });
       populationCountriesObj[name] = population;
       populationRegionObj[region] = populationCount;
     }
     statData.populationOfCountries[region] = populationCountriesObj;
     populationCountriesObj = {};
   }
-  console.log(dataOfCountries);
   data.datasets[0].data = populationRegionObj;
   myChart.update();
 };
@@ -110,13 +123,17 @@ const getPopulationOfCitiesInSpisificCountry = async function (country) {
 
 const startup = async function () {
   statData.allData = await promisAllData();
-  // const searchCountry = await getPopulationOfCitiesInSpisificCountry("israel");
-  calcPopulationOfRegionAndCountries();
-  console.log(statData.allData);
+  detailsRegionAndCountries();
 };
 
 const fillCountriesIntoSelectBox = function (region) {
   countriesSelect.replaceChildren();
+  const headOfSelectList = document.createElement("option");
+  headOfSelectList.classList.add("optionDiv");
+  headOfSelectList.setAttribute("disabled", true);
+  headOfSelectList.setAttribute("selected", true);
+  headOfSelectList.textContent = "Select Country";
+  countriesSelect.appendChild(headOfSelectList);
   for (let country in statData.populationOfCountries[region]) {
     const optionDiv = document.createElement("option");
     optionDiv.classList.add("optionDiv");
@@ -125,20 +142,39 @@ const fillCountriesIntoSelectBox = function (region) {
     optionDiv.textContent = country;
     countriesSelect.appendChild(optionDiv);
   }
+
   regionName.textContent = region;
 };
-
+const getDetailsOfCountry = function (countryName) {
+  const details = statData.dataOfCountries.find((country) => {
+    return country.name === countryName;
+  });
+  detailsFlag.src = details.flag["png"];
+  detailsName.textContent = "Name:" + " " + details["name"];
+  detailsCapital.textContent = "Capital:" + " " + details["capital"];
+  detailsArea.textContent = "Area:" + " " + details["area"] / 1000 + " Km2";
+  detailsPopulation.textContent =
+    "Population:" + " " + details["population"] / 1000000 + "million";
+  detailsBorders.textContent = "Borders :";
+  details.borders.forEach((country) => {
+    const borderDiv = document.createElement("div");
+    borderDiv.textContent = country;
+    detailsBorders.appendChild(borderDiv);
+  });
+};
 const showCities = async function (e) {
+  countryDetails.style.display = "flex";
+  countries.style.justifyContent = "flex-start";
   const countryName = e.target.selectedOptions[0].value;
   const cities = await getPopulationOfCitiesInSpisificCountry(countryName);
-  console.log(cities);
   data.datasets[0].data = cities;
   myChart.update();
+  getDetailsOfCountry(countryName);
 };
 const showCountries = function (e) {
+  countries.style.display = "flex";
+  countryDetails.style.display = "none";
   const nameOfRegion = e.target.id;
-  // myChart.destroy();
-  // console.log(statData.populationCountriesObj[nameOfRegion]);
   data.datasets[0].data = statData.populationOfCountries[nameOfRegion];
   myChart.update();
   fillCountriesIntoSelectBox(nameOfRegion);
@@ -151,11 +187,10 @@ const events = function () {
 startup();
 events();
 
-console.log(statData.populationRegionObj);
 const data = {
   datasets: [
     {
-      label: "World Population",
+      label: "",
       data: "",
       backgroundColor: [
         "rgba(255, 99, 132, 0.2)",
@@ -198,5 +233,3 @@ const config = {
   },
 };
 let myChart = new Chart(document.getElementById("myChart"), config);
-
-// getPopulationOfCitiesInSpisificCountry("france");
