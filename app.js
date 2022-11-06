@@ -88,10 +88,10 @@ const promisAllData = async function () {
 };
 
 const detailsOfRegionAndCountries = function () {
-  let populationCount = 0;
   populationRegionObj = {};
   populationCountriesObj = {};
   for (let region of statData.regions) {
+    let populationCount = 0;
     for (let country of statData.allData[region]) {
       const name = country.name.common.toLowerCase();
       const officalName = country.name.official;
