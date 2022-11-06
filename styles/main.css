@@ -7,29 +7,11 @@
   font-family: "Cabin", sans-serif;
   /* overflow: hidden; */
 }
-@media only screen and (min-device-width: 480px) and (max-device-width: 640px) and (orientation: landscape) {
-  .titles {
-    margin: 0.5% 0.25%;
-  }
-  canvas {
-    width: 350px;
-    height: 100px;
-  }
-  .regionName {
-    font-size: 1rem;
-  }
-  .details {
-    font-size: 0.5rem;
-  }
-  .countryDetails .details-flag {
-    width: 35%;
-    height: 10%;
-  }
-}
+
 body {
   /* background-color: black; */
   background: url("/img/A_time-lapse_view_of_Earth_from_the_Space_Station_from_Africa_to_Russia_pillars.png")
-    center center repeat;
+    center center no-repeat;
   background-size: cover;
 }
 .big-container {
@@ -104,9 +86,7 @@ body {
   display: flex;
   justify-content: center;
 }
-/* #chartJs {
-  display: none;
-} */
+
 .countries {
   display: none;
   /* height: 80vh; */
@@ -115,6 +95,9 @@ body {
   flex: 1 1 20%;
   margin-left: 1%;
   margin-top: 1%;
+}
+.countriesSelect {
+  cursor: pointer;
 }
 .regionName {
   width: 100%;
