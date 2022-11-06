@@ -1,5 +1,3 @@
-// const { Chart } = require("chart.js");
-
 const countries = document.querySelector(".countries");
 const titles = document.querySelector(".titles");
 const countriesSelect = document.querySelector(".countriesSelect");
@@ -11,25 +9,37 @@ const detailsCapital = document.querySelector(".details-capital");
 const detailsArea = document.querySelector(".details-area");
 const detailsPopulation = document.querySelector(".details-population");
 const detailsBorders = document.querySelector(".details-borders");
-
+const spinner = document.querySelector(".loader");
+const refresh = document.querySelector(".refresh");
 const ctx = document.getElementById("myChart").getContext("2d");
 
 statData = {
   regions: ["africa", "americas", "asia", "europe", "oceania"],
+  isLoading: false,
   allData: null,
   dataOfCountries: [],
   populationOfCountries: {},
-  populationOfCites: {},
+  commonAndOfficialNames: {},
   AllApis: {
     byRegion: "https://restcountries.com/v3.1/region/",
-    byCountry: "https://countriesnow.space/api/v0.1/countries/cities",
-    byCity:
+    getCitiesByCountry:
       "https://countriesnow.space/api/v0.1/countries/population/cities/filter",
   },
 };
 
+const setSpinner = function () {
+  if (statData.isLoading) {
+    countryDetails.style.display = "none";
+    spinner.style.display = "block";
+  } else {
+    countryDetails.style.display = "flex";
+    spinner.style.display = "none";
+  }
+};
 const fetchData = async function (url, kind, countryOrCity) {
   try {
+    statData.isLoading = true;
+    setSpinner();
     let res;
     if (kind === "POST") {
       if (url.includes("population")) {
@@ -77,19 +87,21 @@ const promisAllData = async function () {
   return { africa, americas, asia, europe, oceania };
 };
 
-const detailsRegionAndCountries = async function () {
+const detailsOfRegionAndCountries = function () {
   let populationCount = 0;
   populationRegionObj = {};
   populationCountriesObj = {};
   for (let region of statData.regions) {
     for (let country of statData.allData[region]) {
       const name = country.name.common.toLowerCase();
+      const officalName = country.name.official;
       const capital = country.capital;
       const population = country.population;
       const flag = country.flags;
       const area = country.area;
       const borders = country.borders;
       populationCount += country.population;
+      statData.commonAndOfficialNames[name] = officalName;
       statData.dataOfCountries.push({
         name,
         capital,
@@ -104,12 +116,28 @@ const detailsRegionAndCountries = async function () {
     statData.populationOfCountries[region] = populationCountriesObj;
     populationCountriesObj = {};
   }
-  data.datasets[0].data = populationRegionObj;
-  myChart.update();
+  sendDataToChart(populationRegionObj);
 };
-
+const checkOfficialName = function (country) {
+  for (let commonName in statData.commonAndOfficialNames) {
+    if (commonName === country)
+      return statData.commonAndOfficialNames[commonName];
+  }
+};
 const getPopulationOfCitiesInSpisificCountry = async function (country) {
-  const getCities = await fetchData(statData.AllApis.byCity, "POST", country);
+  let getCities = await fetchData(
+    statData.AllApis.getCitiesByCountry,
+    "POST",
+    country
+  );
+  if (!getCities.data) {
+    const officialName = checkOfficialName(country);
+    getCities = await fetchData(
+      statData.AllApis.getCitiesByCountry,
+      "POST",
+      officialName
+    );
+  }
   const cities = {};
   if (getCities.data) {
     for (let city of getCities.data) {
@@ -123,7 +151,7 @@ const getPopulationOfCitiesInSpisificCountry = async function (country) {
 
 const startup = async function () {
   statData.allData = await promisAllData();
-  detailsRegionAndCountries();
+  detailsOfRegionAndCountries();
 };
 
 const fillCountriesIntoSelectBox = function (region) {
@@ -156,33 +184,49 @@ const getDetailsOfCountry = function (countryName) {
   detailsPopulation.textContent =
     "Population:" + " " + details["population"] / 1000000 + "million";
   detailsBorders.textContent = "Borders :";
-  details.borders.forEach((country) => {
-    const borderDiv = document.createElement("div");
-    borderDiv.textContent = country;
-    detailsBorders.appendChild(borderDiv);
-  });
+  if (details.borders !== undefined) {
+    details.borders.forEach((country) => {
+      const borderDiv = document.createElement("div");
+      borderDiv.textContent = country;
+      detailsBorders.appendChild(borderDiv);
+    });
+  }
 };
 const showCities = async function (e) {
+  detailsFlag.style.display = "block";
   countryDetails.style.display = "flex";
   countries.style.justifyContent = "flex-start";
   const countryName = e.target.selectedOptions[0].value;
   const cities = await getPopulationOfCitiesInSpisificCountry(countryName);
-  data.datasets[0].data = cities;
-  myChart.update();
+  sendDataToChart(cities);
   getDetailsOfCountry(countryName);
 };
 const showCountries = function (e) {
+  detailsFlag.style.display = "none";
+  detailsName.textContent = "";
+  detailsCapital.textContent = "";
+  detailsArea.textContent = "";
+  detailsPopulation.textContent = "";
+  detailsBorders.textContent = "";
   countries.style.display = "flex";
-  countryDetails.style.display = "none";
   const nameOfRegion = e.target.id;
-  data.datasets[0].data = statData.populationOfCountries[nameOfRegion];
-  myChart.update();
+  sendDataToChart(statData.populationOfCountries[nameOfRegion]);
   fillCountriesIntoSelectBox(nameOfRegion);
 };
-
+const backToFirstFunc = function () {
+  countries.style.display = "none";
+  detailsOfRegionAndCountries();
+};
 const events = function () {
   titles.addEventListener("click", showCountries);
   countriesSelect.addEventListener("change", showCities);
+  refresh.addEventListener("click", backToFirstFunc);
+};
+const sendDataToChart = function (recievedData) {
+  statData.isLoading = false;
+  setSpinner();
+  data.datasets[0].data = recievedData;
+  myChart.update();
 };
 startup();
 events();
@@ -217,6 +261,11 @@ const config = {
   type: "bar",
   data,
   options: {
+    plugins: {
+      legend: {
+        display: false,
+      },
+    },
     scales: {
       x: {
         ticks: {

@@ -6,7 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>World Population</title>
     <link rel="stylesheet" href="/styles/normalize.css" />
+    <link rel="stylesheet" href="/styles/spinner.css" />
     <link rel="stylesheet" href="/styles/main.css" />
+    <link rel="stylesheet" href="/styles/mobile.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.js"></script>
   </head>
   <body>
@@ -28,10 +30,14 @@
           <img class="circle" src="/img/oceaniaPhoto.png" id="oceania" alt="" />
         </div>
         <div class="chartContainer">
-          <div><canvas id="myChart" width="650" height="300"></canvas></div>
+          <div id="chartJs">
+            <canvas id="myChart" width="850" height="400"></canvas>
+          </div>
+          <span class="loader"></span>
         </div>
       </div>
       <div class="countries">
+        <img class="refresh" src="/img/refresh.png" alt="" />
         <label class="regionName" for=""></label>
         <select name="" class="countriesSelect"></select>
         <div class="countryDetails">

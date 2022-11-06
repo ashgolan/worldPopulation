@@ -5,20 +5,42 @@
   margin: 0;
   box-sizing: border-box;
   font-family: "Cabin", sans-serif;
-  overflow: hidden;
+  /* overflow: hidden; */
+}
+@media only screen and (min-device-width: 480px) and (max-device-width: 640px) and (orientation: landscape) {
+  .titles {
+    margin: 0.5% 0.25%;
+  }
+  canvas {
+    width: 350px;
+    height: 100px;
+  }
+  .regionName {
+    font-size: 1rem;
+  }
+  .details {
+    font-size: 0.5rem;
+  }
+  .countryDetails .details-flag {
+    width: 35%;
+    height: 10%;
+  }
 }
 body {
+  /* background-color: black; */
   background: url("/img/A_time-lapse_view_of_Earth_from_the_Space_Station_from_Africa_to_Russia_pillars.png")
-    center center no-repeat;
+    center center repeat;
   background-size: cover;
 }
 .big-container {
-  height: 98vh;
+  display: flex;
+  height: 90vh;
   display: flex;
   justify-content: center;
+  flex-wrap: wrap;
 }
 .logo {
-  width: 100%;
+  max-width: 100%;
   height: 2%;
   color: gold;
   font-size: 3rem;
@@ -30,19 +52,38 @@ body {
   font-size: 1rem;
   color: white;
 }
-canvas {
+.ctx {
   color: white;
 }
 .headAndChart {
-  flex: 1 1 80%;
+  flex: 1 1 70%;
   display: flex;
   flex-direction: column;
   justify-content: space-around;
 }
+
 .titles {
   display: flex;
   justify-content: center;
   margin: 2% 1%;
+}
+.refresh {
+  width: 10%;
+  animation: backToRegion 5s linear infinite;
+  cursor: pointer;
+}
+@keyframes backToRegion {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+.loading {
+  position: fixed;
+  color: white;
+  font-size: 1rem;
 }
 .circle {
   width: 10%;
@@ -63,10 +104,12 @@ canvas {
   display: flex;
   justify-content: center;
 }
-
+/* #chartJs {
+  display: none;
+} */
 .countries {
   display: none;
-  height: 100vh;
+  /* height: 80vh; */
   flex-direction: column;
   align-items: center;
   flex: 1 1 20%;
